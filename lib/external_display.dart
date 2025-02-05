@@ -105,7 +105,7 @@ class ExternalDisplay {
 
     return result;
   }
-
+  ///检查副屏是否有触摸输入
   Future<bool> isSecondaryDisplayTouchEnabled() async {
     try {
       final bool result = await _displayController.invokeMethod('isSecondaryDisplayTouchEnabled');
