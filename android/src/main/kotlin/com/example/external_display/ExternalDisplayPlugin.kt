@@ -25,6 +25,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import org.json.JSONObject
+import android.view.InputDevice
 
 import android.content.ContentValues.TAG
 import android.util.Log
@@ -76,6 +77,25 @@ class ExternalDisplayPlugin: FlutterPlugin, MethodCallHandler, StreamHandler, Ac
     // 建立 Flutter MethodChannel
     methodChannel = MethodChannel(flutterPluginBinding.binaryMessenger, "displayController")
     methodChannel.setMethodCallHandler(this)
+  }
+  fun isSecondaryDisplayTouchEnabled(context: Context): Boolean {
+    val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+    val displays = displayManager. displays
+
+    for (display in displays) {
+      if (display.displayId != Display.DEFAULT_DISPLAY) {
+        val inputDeviceIds = InputDevice.getDeviceIds()
+        var touchDisplayCount=0;
+        for (id in inputDeviceIds) {
+          val inputDevice = InputDevice.getDevice(id)
+          if (inputDevice != null && inputDevice.supportsSource(InputDevice.SOURCE_TOUCHSCREEN)) {
+            touchDisplayCount++;
+          }
+        }
+        return touchDisplayCount>1;
+      }
+    }
+    return false;
   }
 
   // 接收主頁面的命令和參數
@@ -172,7 +192,10 @@ class ExternalDisplayPlugin: FlutterPlugin, MethodCallHandler, StreamHandler, Ac
           result.success(false)
         }
       }
-
+      "isSecondaryDisplayTouchEnabled" -> {
+        val isTouchEnabled = isSecondaryDisplayTouchEnabled(context)
+        result.success(isTouchEnabled)
+      }
       else -> {
         result.notImplemented()
       }

@@ -105,4 +105,14 @@ class ExternalDisplay {
 
     return result;
   }
+
+  Future<bool> isSecondaryDisplayTouchEnabled() async {
+    try {
+      final bool result = await _displayController.invokeMethod('isSecondaryDisplayTouchEnabled');
+      return result;
+    } on PlatformException catch (e) {
+      print("Failed to check secondary display touch: ${e.message}");
+      return false;
+    }
+  }
 }
