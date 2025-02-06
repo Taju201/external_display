@@ -79,23 +79,26 @@ class ExternalDisplayPlugin: FlutterPlugin, MethodCallHandler, StreamHandler, Ac
     methodChannel.setMethodCallHandler(this)
   }
   fun isSecondaryDisplayTouchEnabled(context: Context): Boolean {
-    val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-    val displays = displayManager. displays
-
-    for (display in displays) {
-      if (display.displayId != Display.DEFAULT_DISPLAY) {
-        val inputDeviceIds = InputDevice.getDeviceIds()
-        var touchDisplayCount=0;
-        for (id in inputDeviceIds) {
-          val inputDevice = InputDevice.getDevice(id)
-          if (inputDevice != null && inputDevice.supportsSource(InputDevice.SOURCE_TOUCHSCREEN)) {
-            touchDisplayCount++;
+    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.O){
+      return false
+    }else {
+      val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+      val displays = displayManager.displays
+      for (display in displays) {
+        if (display.displayId != Display.DEFAULT_DISPLAY) {
+          val inputDeviceIds = InputDevice.getDeviceIds()
+          var touchDisplayCount = 0;
+          for (id in inputDeviceIds) {
+            val inputDevice = InputDevice.getDevice(id);
+            if (inputDevice != null && inputDevice.supportsSource(InputDevice.SOURCE_TOUCHSCREEN)) {
+              touchDisplayCount++;
+            }
           }
+          return touchDisplayCount > 1;
         }
-        return touchDisplayCount>1;
       }
+      return false;
     }
-    return false;
   }
 
   // 接收主頁面的命令和參數
